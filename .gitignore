@@ -1,9 +1,5 @@
 # macOS
 .DS_Store
 
-# Verilog simulation outputs
-*.vvp
-*.vcd
-*.fst
 
 
