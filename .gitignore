@@ -6,5 +6,4 @@
 *.vcd
 *.fst
 
-# Simulation/waveform directories
-sim/waves/
+
