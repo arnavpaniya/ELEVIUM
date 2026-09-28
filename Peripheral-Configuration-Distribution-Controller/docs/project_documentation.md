@@ -45,36 +45,63 @@ The project is being developed incrementally, with individual RTL blocks being d
 
 ---
 
-## 3. Current Objective
+# 3. Project Scope
 
-The initial objective is to implement and verify the basic building blocks required for an SPI Master.
+The Peripheral Configuration Distribution Controller is being developed as a modular RTL system. The project is divided into multiple hardware blocks that will be implemented, verified, and integrated progressively.
 
-The current implementation consists of:
+### Planned RTL Building Blocks
 
-- Parallel-In Serial-Out (PISO)
-- Serial-In Parallel-Out (SIPO)
+- PISO (Parallel-In Serial-Out)
+- SIPO (Serial-In Parallel-Out)
 - Clock Divider
+- Counters
+- FIFO
+- Clock Domain Crossing (CDC)
+- Memory
 
-These blocks form the fundamental data transmission, data reception, and clock-generation sections of the SPI interface.
+These blocks will subsequently be integrated to form the SPI Master and the higher-level peripheral configuration controller.
 
 ---
 
-## 4. System Architecture
+# 4. Current Implementation Status
 
-The planned high-level architecture is:
+The project is being developed incrementally.
+
+| Block | Status |
+|---|---|
+| PISO | ✅ Implemented & Verified |
+| SIPO | ✅ Implemented & Verified |
+| Clock Divider | ✅ Implemented & Verified |
+| Counters | 🔄 Planned |
+| FIFO | 🔄 Planned |
+| CDC | 🔄 Planned |
+| Memory | 🔄 Planned |
+| SPI Master | 🔄 Planned |
+| APB Interface | 🔄 Planned |
+| AXI / SoC Integration | 🔄 Planned |
+
+---
+
+# 5. System Architecture
+
+The planned architecture is:
 
 ```text
-             CPU / SoC
-                 |
-                AXI
-                 |
-                APB
-                 |
-            SPI Master
-          /      |      \
-       PISO    Clock    SIPO
-                Divider
-                 |
-              SPI Bus
-                 |
-             Peripheral
+                         CPU / SoC
+                             |
+                            AXI
+                             |
+                            APB
+                             |
+                  Peripheral Configuration
+                       Controller
+                             |
+                         SPI Master
+                             |
+          +------------------+------------------+
+          |                  |                  |
+         PISO             SIPO            Clock Divider
+          |                  |                  |
+          +-------- SPI Full-Duplex Bus -------+
+                             |
+                         Peripheral
