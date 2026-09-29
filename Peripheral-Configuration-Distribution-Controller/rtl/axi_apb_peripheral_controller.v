@@ -1,43 +1,42 @@
 module axi_apb_peripheral_controller (
-    input  wire        aclk,
-    input  wire        aresetn,
+    input wire        aclk,
+    input wire        aresetn,
 
-    input  wire [7:0]  awaddr,
-    input  wire        awvalid,
-    output wire        awready,
+    input wire [7:0]  awaddr,
+    input wire        awvalid,
+    output wire       awready,
 
-    input  wire [31:0] wdata,
-    input  wire [3:0]  wstrb,
-    input  wire        wvalid,
-    output wire        wready,
+    input wire [31:0] wdata,
+    input wire [3:0]  wstrb,
+    input wire        wvalid,
+    output wire       wready,
 
-    output reg  [1:0]  bresp,
-    output reg         bvalid,
-    input  wire        bready,
+    output reg [1:0]  bresp,
+    output reg        bvalid,
+    input wire        bready,
 
-    input  wire [7:0]  araddr,
-    input  wire        arvalid,
-    output wire        arready,
+    input wire [7:0]  araddr,
+    input wire        arvalid,
+    output wire       arready,
 
-    output reg  [31:0] rdata,
-    output reg  [1:0]  rresp,
-    output reg         rvalid,
-    input  wire        rready,
+    output reg [31:0] rdata,
+    output reg [1:0]  rresp,
+    output reg        rvalid,
+    input wire        rready,
 
-    input  wire        miso,
-
-    output wire        mosi,
-    output wire        sclk,
-    output wire        cs
+    input wire        miso,
+    output wire       mosi,
+    output wire       sclk,
+    output wire       cs
 );
 
-    localparam IDLE       = 3'd0;
-    localparam W_SETUP    = 3'd1;
-    localparam W_ACCESS   = 3'd2;
-    localparam B_RESPONSE = 3'd3;
-    localparam R_SETUP    = 3'd4;
-    localparam R_ACCESS   = 3'd5;
-    localparam R_RESPONSE = 3'd6;
+    localparam IDLE        = 3'd0;
+    localparam W_SETUP     = 3'd1;
+    localparam W_ACCESS    = 3'd2;
+    localparam B_RESPONSE  = 3'd3;
+    localparam R_SETUP     = 3'd4;
+    localparam R_ACCESS    = 3'd5;
+    localparam R_RESPONSE  = 3'd6;
 
     reg [2:0] state;
 
@@ -47,6 +46,7 @@ module axi_apb_peripheral_controller (
 
     wire        apb_psel;
     wire        apb_penable;
+
     wire [31:0] apb_rdata;
     wire        apb_pready;
     wire        apb_pslverr;
@@ -54,18 +54,12 @@ module axi_apb_peripheral_controller (
     wire busy;
     wire done;
 
-    // ----------------------------------------------------
-    // AXI READY
-    // ----------------------------------------------------
-
+    // AXI ready signals
     assign awready = (state == IDLE);
     assign wready  = (state == IDLE);
     assign arready = (state == IDLE);
 
-    // ----------------------------------------------------
-    // APB CONTROL
-    // ----------------------------------------------------
-
+    // APB signals
     assign apb_psel =
         (state == W_SETUP)  ||
         (state == W_ACCESS) ||
@@ -76,34 +70,33 @@ module axi_apb_peripheral_controller (
         (state == W_ACCESS) ||
         (state == R_ACCESS);
 
-    // ----------------------------------------------------
-    // AXI / APB FSM
-    // ----------------------------------------------------
-
+    // AXI/APB control state machine
     always @(posedge aclk) begin
 
         if (!aresetn) begin
 
-            state <= IDLE;
+            state      <= IDLE;
 
             apb_addr   <= 8'b0;
             apb_wdata  <= 32'b0;
             apb_pwrite <= 1'b0;
 
-            bvalid <= 1'b0;
-            bresp  <= 2'b00;
+            bvalid     <= 1'b0;
+            bresp      <= 2'b00;
 
-            rvalid <= 1'b0;
-            rdata  <= 32'b0;
-            rresp  <= 2'b00;
+            rvalid     <= 1'b0;
+            rdata      <= 32'b0;
+            rresp      <= 2'b00;
 
-        end else begin
+        end
+
+        else begin
 
             case (state)
 
-                // ----------------------------------------
+                // ------------------------------------------------
                 // IDLE
-                // ----------------------------------------
+                // ------------------------------------------------
 
                 IDLE: begin
 
@@ -115,7 +108,9 @@ module axi_apb_peripheral_controller (
 
                         state <= W_SETUP;
 
-                    end else if (arvalid) begin
+                    end
+
+                    else if (arvalid) begin
 
                         apb_addr   <= araddr;
                         apb_wdata  <= 32'b0;
@@ -127,23 +122,29 @@ module axi_apb_peripheral_controller (
 
                 end
 
-                // ----------------------------------------
+
+                // ------------------------------------------------
                 // APB WRITE SETUP
-                // ----------------------------------------
+                // ------------------------------------------------
 
                 W_SETUP: begin
                     state <= W_ACCESS;
                 end
 
-                // ----------------------------------------
+
+                // ------------------------------------------------
                 // APB WRITE ACCESS
-                // ----------------------------------------
+                // ------------------------------------------------
 
                 W_ACCESS: begin
 
                     if (apb_pready) begin
 
-                        bresp  <= apb_pslverr ? 2'b10 : 2'b00;
+                        if (apb_pslverr)
+                            bresp <= 2'b10;
+                        else
+                            bresp <= 2'b00;
+
                         bvalid <= 1'b1;
 
                         state <= B_RESPONSE;
@@ -152,9 +153,10 @@ module axi_apb_peripheral_controller (
 
                 end
 
-                // ----------------------------------------
+
+                // ------------------------------------------------
                 // AXI WRITE RESPONSE
-                // ----------------------------------------
+                // ------------------------------------------------
 
                 B_RESPONSE: begin
 
@@ -168,24 +170,30 @@ module axi_apb_peripheral_controller (
 
                 end
 
-                // ----------------------------------------
+
+                // ------------------------------------------------
                 // APB READ SETUP
-                // ----------------------------------------
+                // ------------------------------------------------
 
                 R_SETUP: begin
                     state <= R_ACCESS;
                 end
 
-                // ----------------------------------------
+
+                // ------------------------------------------------
                 // APB READ ACCESS
-                // ----------------------------------------
+                // ------------------------------------------------
 
                 R_ACCESS: begin
 
                     if (apb_pready) begin
 
                         rdata <= apb_rdata;
-                        rresp <= apb_pslverr ? 2'b10 : 2'b00;
+
+                        if (apb_pslverr)
+                            rresp <= 2'b10;
+                        else
+                            rresp <= 2'b00;
 
                         rvalid <= 1'b1;
 
@@ -195,9 +203,10 @@ module axi_apb_peripheral_controller (
 
                 end
 
-                // ----------------------------------------
+
+                // ------------------------------------------------
                 // AXI READ RESPONSE
-                // ----------------------------------------
+                // ------------------------------------------------
 
                 R_RESPONSE: begin
 
@@ -211,6 +220,7 @@ module axi_apb_peripheral_controller (
 
                 end
 
+
                 default: begin
                     state <= IDLE;
                 end
@@ -221,33 +231,33 @@ module axi_apb_peripheral_controller (
 
     end
 
-    // ----------------------------------------------------
-    // APB PERIPHERAL CONTROLLER
-    // ----------------------------------------------------
+
+    // ------------------------------------------------------------
+    // APB SPI peripheral
+    // ------------------------------------------------------------
 
     apb_peripheral_controller apb_spi (
 
-        .pclk    (aclk),
-        .presetn (aresetn),
+        .pclk     (aclk),
+        .presetn  (aresetn),
 
-        .paddr   (apb_addr),
-        .psel    (apb_psel),
-        .penable (apb_penable),
-        .pwrite  (apb_pwrite),
-        .pwdata  (apb_wdata),
+        .paddr    (apb_addr),
+        .psel     (apb_psel),
+        .penable  (apb_penable),
+        .pwrite   (apb_pwrite),
+        .pwdata   (apb_wdata),
 
-        .prdata  (apb_rdata),
-        .pready  (apb_pready),
-        .pslverr (apb_pslverr),
+        .prdata   (apb_rdata),
+        .pready   (apb_pready),
+        .pslverr  (apb_pslverr),
 
-        .miso    (miso),
+        .miso     (miso),
+        .mosi     (mosi),
+        .sclk     (sclk),
+        .cs       (cs),
 
-        .mosi    (mosi),
-        .sclk    (sclk),
-        .cs      (cs),
-
-        .busy    (busy),
-        .done    (done)
+        .busy     (busy),
+        .done     (done)
     );
 
 endmodule
