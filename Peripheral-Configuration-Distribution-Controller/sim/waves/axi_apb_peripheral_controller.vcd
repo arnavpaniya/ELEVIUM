@@ -1,0 +1,694 @@
+$date
+	Tue Sep 29 13:57:41 2026
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module axi_apb_peripheral_controller_tb $end
+$var wire 1 ! wready $end
+$var wire 1 " sclk $end
+$var wire 1 # rvalid $end
+$var wire 2 $ rresp [1:0] $end
+$var wire 32 % rdata [31:0] $end
+$var wire 1 & mosi $end
+$var wire 1 ' cs $end
+$var wire 1 ( bvalid $end
+$var wire 2 ) bresp [1:0] $end
+$var wire 1 * awready $end
+$var wire 1 + arready $end
+$var reg 1 , aclk $end
+$var reg 8 - araddr [7:0] $end
+$var reg 1 . aresetn $end
+$var reg 1 / arvalid $end
+$var reg 8 0 awaddr [7:0] $end
+$var reg 1 1 awvalid $end
+$var reg 1 2 bready $end
+$var reg 1 3 miso $end
+$var reg 1 4 rready $end
+$var reg 8 5 slave_rx_data [7:0] $end
+$var reg 8 6 slave_tx_data [7:0] $end
+$var reg 32 7 wdata [31:0] $end
+$var reg 4 8 wstrb [3:0] $end
+$var reg 1 9 wvalid $end
+$var integer 32 : bit_count [31:0] $end
+$var integer 32 ; errors [31:0] $end
+$scope module dut $end
+$var wire 1 , aclk $end
+$var wire 1 < apb_penable $end
+$var wire 1 = apb_pready $end
+$var wire 1 > apb_psel $end
+$var wire 1 ? apb_pslverr $end
+$var wire 8 @ araddr [7:0] $end
+$var wire 1 . aresetn $end
+$var wire 1 / arvalid $end
+$var wire 8 A awaddr [7:0] $end
+$var wire 1 1 awvalid $end
+$var wire 1 2 bready $end
+$var wire 1 3 miso $end
+$var wire 1 4 rready $end
+$var wire 32 B wdata [31:0] $end
+$var wire 4 C wstrb [3:0] $end
+$var wire 1 9 wvalid $end
+$var wire 1 ! wready $end
+$var wire 1 " sclk $end
+$var wire 1 & mosi $end
+$var wire 1 D done $end
+$var wire 1 ' cs $end
+$var wire 1 E busy $end
+$var wire 1 * awready $end
+$var wire 1 + arready $end
+$var wire 32 F apb_rdata [31:0] $end
+$var parameter 3 G B_RESPONSE $end
+$var parameter 3 H IDLE $end
+$var parameter 3 I R_ACCESS $end
+$var parameter 3 J R_RESPONSE $end
+$var parameter 3 K R_SETUP $end
+$var parameter 3 L W_ACCESS $end
+$var parameter 3 M W_SETUP $end
+$var reg 8 N apb_addr [7:0] $end
+$var reg 1 O apb_pwrite $end
+$var reg 32 P apb_wdata [31:0] $end
+$var reg 2 Q bresp [1:0] $end
+$var reg 1 ( bvalid $end
+$var reg 32 R rdata [31:0] $end
+$var reg 2 S rresp [1:0] $end
+$var reg 1 # rvalid $end
+$var reg 3 T state [2:0] $end
+$scope module apb_spi $end
+$var wire 1 U apb_write $end
+$var wire 1 3 miso $end
+$var wire 8 V paddr [7:0] $end
+$var wire 1 , pclk $end
+$var wire 1 < penable $end
+$var wire 1 = pready $end
+$var wire 1 . presetn $end
+$var wire 1 > psel $end
+$var wire 1 ? pslverr $end
+$var wire 32 W pwdata [31:0] $end
+$var wire 1 O pwrite $end
+$var wire 1 " sclk $end
+$var wire 8 X rx_data [7:0] $end
+$var wire 32 Y prdata [31:0] $end
+$var wire 1 & mosi $end
+$var wire 1 D done $end
+$var wire 1 ' cs $end
+$var wire 1 E busy $end
+$var reg 1 Z start_pulse $end
+$var reg 32 [ tx_register [31:0] $end
+$scope module spi_controller $end
+$var wire 1 , clk $end
+$var wire 1 3 miso $end
+$var wire 1 \ reset $end
+$var wire 1 Z start $end
+$var wire 8 ] tx_data [7:0] $end
+$var reg 4 ^ bit_count [3:0] $end
+$var reg 1 E busy $end
+$var reg 2 _ clk_count [1:0] $end
+$var reg 1 ' cs $end
+$var reg 1 D done $end
+$var reg 1 & mosi $end
+$var reg 8 ` rx_data [7:0] $end
+$var reg 8 a rx_shift [7:0] $end
+$var reg 1 " sclk $end
+$var reg 8 b tx_shift [7:0] $end
+$upscope $end
+$upscope $end
+$upscope $end
+$scope task axi_read $end
+$var reg 8 c addr [7:0] $end
+$upscope $end
+$scope task axi_write $end
+$var reg 8 d addr [7:0] $end
+$var reg 32 e data [31:0] $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+b1 M
+b10 L
+b100 K
+b110 J
+b101 I
+b0 H
+b11 G
+$end
+#0
+$dumpvars
+bx e
+bx d
+bx c
+bx b
+bx a
+bx `
+bx _
+bx ^
+bx ]
+1\
+bx [
+xZ
+bx Y
+bx X
+bx W
+bx V
+xU
+bx T
+bx S
+bx R
+bx Q
+bx P
+xO
+bx N
+bx F
+xE
+xD
+b1111 C
+b0 B
+b0 A
+b0 @
+0?
+x>
+1=
+x<
+b0 ;
+b0 :
+09
+b1111 8
+b0 7
+b1100101 6
+b0 5
+04
+03
+02
+01
+b0 0
+0/
+0.
+b0 -
+0,
+x+
+x*
+bx )
+x(
+x'
+x&
+bx %
+bx $
+x#
+x"
+x!
+$end
+#5000
+0>
+b0 F
+b0 Y
+b0 ]
+0U
+0<
+0D
+0E
+b0 X
+b0 `
+1'
+0"
+0&
+b0 _
+b0 ^
+b0 a
+b0 b
+0Z
+b0 [
+b0 $
+b0 S
+b0 %
+b0 R
+0#
+b0 )
+b0 Q
+0(
+0O
+b0 P
+b0 W
+b0 N
+b0 V
+1*
+1!
+1+
+b0 T
+1,
+#10000
+0,
+#15000
+1,
+#20000
+0,
+b10100101 e
+b0 d
+0\
+1.
+#25000
+19
+b10100101 7
+b10100101 B
+11
+1,
+#30000
+0,
+#35000
+1>
+09
+01
+0*
+0!
+0+
+b1 T
+1O
+b10100101 P
+b10100101 W
+1,
+#40000
+0,
+#45000
+1U
+1<
+b10 T
+1,
+#50000
+0,
+#55000
+12
+0>
+0U
+0<
+b10100101 F
+b10100101 Y
+b10100101 ]
+b11 T
+1(
+b10100101 [
+1,
+#60000
+0,
+#65000
+1*
+1!
+1+
+b0 T
+0(
+02
+b0 c
+1,
+#70000
+0,
+#75000
+1/
+1,
+#80000
+0,
+#85000
+1>
+0/
+0*
+0!
+0+
+b100 T
+0O
+b0 P
+b0 W
+1,
+#90000
+0,
+#95000
+1<
+b101 T
+1,
+#100000
+0,
+#105000
+14
+0>
+0<
+b110 T
+1#
+b10100101 %
+b10100101 R
+1,
+#110000
+0,
+#115000
+1*
+1!
+1+
+b0 T
+0#
+04
+b1 e
+b100 d
+1,
+#120000
+0,
+#125000
+19
+b1 7
+b1 B
+11
+b100 0
+b100 A
+1,
+#130000
+0,
+#135000
+1>
+b0 F
+b0 Y
+09
+01
+0*
+0!
+0+
+b1 T
+1O
+b1 P
+b1 W
+b100 N
+b100 V
+1,
+#140000
+0,
+#145000
+1U
+1<
+b10 T
+1,
+#150000
+0,
+#155000
+12
+0>
+0U
+0<
+b11 T
+1(
+1Z
+1,
+#160000
+0,
+#165000
+b1 F
+b1 Y
+1E
+0'
+1&
+b10100101 b
+0Z
+1*
+1!
+1+
+b0 T
+0(
+02
+1,
+#170000
+0,
+#175000
+b1 _
+1,
+#180000
+0,
+#185000
+b1 :
+b10000000 5
+1"
+b0 _
+1,
+#190000
+0,
+#195000
+b1 _
+1,
+#200000
+0,
+#205000
+13
+0&
+b1001010 b
+b1 ^
+0"
+b0 _
+1,
+#210000
+0,
+#215000
+b1 _
+1,
+#220000
+0,
+#225000
+b10 :
+b1 a
+1"
+b0 _
+1,
+#230000
+0,
+#235000
+b1 _
+1,
+#240000
+0,
+#245000
+1&
+b10010100 b
+b10 ^
+0"
+b0 _
+1,
+#250000
+0,
+#255000
+b1 _
+1,
+#260000
+0,
+#265000
+b11 :
+b10100000 5
+b11 a
+1"
+b0 _
+1,
+#270000
+0,
+#275000
+b1 _
+1,
+#280000
+0,
+#285000
+03
+0&
+b101000 b
+b11 ^
+0"
+b0 _
+1,
+#290000
+0,
+#295000
+b1 _
+1,
+#300000
+0,
+#305000
+b100 :
+b110 a
+1"
+b0 _
+1,
+#310000
+0,
+#315000
+b1 _
+1,
+#320000
+0,
+#325000
+b1010000 b
+b100 ^
+0"
+b0 _
+1,
+#330000
+0,
+#335000
+b1 _
+1,
+#340000
+0,
+#345000
+b101 :
+b1100 a
+1"
+b0 _
+1,
+#350000
+0,
+#355000
+b1 _
+1,
+#360000
+0,
+#365000
+13
+1&
+b10100000 b
+b101 ^
+0"
+b0 _
+1,
+#370000
+0,
+#375000
+b1 _
+1,
+#380000
+0,
+#385000
+b110 :
+b10100100 5
+b11001 a
+1"
+b0 _
+1,
+#390000
+0,
+#395000
+b1 _
+1,
+#400000
+0,
+#405000
+03
+0&
+b1000000 b
+b110 ^
+0"
+b0 _
+1,
+#410000
+0,
+#415000
+b1 _
+1,
+#420000
+0,
+#425000
+b111 :
+b110010 a
+1"
+b0 _
+1,
+#430000
+0,
+#435000
+b1 _
+1,
+#440000
+0,
+#445000
+13
+1&
+b10000000 b
+b111 ^
+0"
+b0 _
+1,
+#450000
+0,
+#455000
+b1 _
+1,
+#460000
+0,
+#465000
+b0 :
+b10100101 5
+b1100101 a
+1"
+b0 _
+1,
+#470000
+0,
+#475000
+b1 _
+1,
+#480000
+0,
+#485000
+b0 F
+b0 Y
+b1000 c
+1D
+0E
+1'
+0&
+b1100101 X
+b1100101 `
+0"
+b0 _
+1,
+#490000
+0,
+#495000
+0D
+1/
+b1000 -
+b1000 @
+1,
+#500000
+0,
+#505000
+b1100101 F
+b1100101 Y
+1>
+0/
+0*
+0!
+0+
+b100 T
+0O
+b0 P
+b0 W
+b1000 N
+b1000 V
+1,
+#510000
+0,
+#515000
+1<
+b101 T
+1,
+#520000
+0,
+#525000
+14
+0>
+0<
+b110 T
+1#
+b1100101 %
+b1100101 R
+1,
+#530000
+0,
+#535000
+1*
+1!
+1+
+b0 T
+0#
+04
+1,
