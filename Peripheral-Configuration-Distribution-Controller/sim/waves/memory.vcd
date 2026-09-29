@@ -1,0 +1,94 @@
+$date
+	Tue Sep 29 13:35:12 2026
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module memory_tb $end
+$var wire 8 ! read_data [7:0] $end
+$var reg 4 " address [3:0] $end
+$var reg 1 # clk $end
+$var reg 1 $ reset $end
+$var reg 8 % write_data [7:0] $end
+$var reg 1 & write_en $end
+$var integer 32 ' errors [31:0] $end
+$scope module uut $end
+$var wire 4 ( address [3:0] $end
+$var wire 1 # clk $end
+$var wire 1 $ reset $end
+$var wire 8 ) write_data [7:0] $end
+$var wire 1 & write_en $end
+$var parameter 32 * ADDR_WIDTH $end
+$var parameter 32 + DATA_WIDTH $end
+$var reg 8 , read_data [7:0] $end
+$var integer 32 - i [31:0] $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+b1000 +
+b100 *
+$end
+#0
+$dumpvars
+bx -
+bx ,
+b0 )
+b0 (
+b0 '
+0&
+b0 %
+1$
+0#
+b0 "
+bx !
+$end
+#5000
+b0 !
+b0 ,
+b10000 -
+1#
+#6000
+1&
+b10100101 %
+b10100101 )
+b11 "
+b11 (
+0$
+#10000
+0#
+#15000
+1#
+#16000
+0&
+#20000
+0#
+#25000
+b10100101 !
+b10100101 ,
+1#
+#26000
+1&
+b1011010 %
+b1011010 )
+b111 "
+b111 (
+#30000
+0#
+#35000
+b0 !
+b0 ,
+1#
+#36000
+0&
+#40000
+0#
+#45000
+b1011010 !
+b1011010 ,
+1#
+#46000

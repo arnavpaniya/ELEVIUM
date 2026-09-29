@@ -4,8 +4,6 @@
 # Compiled simulation binaries
 *.vvp
 
-# Keep waveform files
-!sim/waves/
-!sim/waves/*.vcd
-
-
+# Keep simulation waveforms
+!Peripheral-Configuration-Distribution-Controller/sim/waves/
+!Peripheral-Configuration-Distribution-Controller/sim/waves/*.vcd
