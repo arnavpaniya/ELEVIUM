@@ -75,7 +75,7 @@ module spi_master (
                     if (bit_count == 3'd7) begin
 
                         // Include the final sampled MISO bit
-                        rx_data <= {miso, rx_shift[7:1]};
+                        rx_data <= rx_shift;
 
                         cs   <= 1'b1;
                         sclk <= 1'b0;
