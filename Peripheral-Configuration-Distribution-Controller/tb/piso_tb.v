@@ -5,6 +5,7 @@ module piso_tb;
     reg       clk;
     reg       reset;
     reg       load;
+    reg       enable;
     reg [7:0] parallel_in;
 
     wire      serial_out;
@@ -20,6 +21,7 @@ module piso_tb;
         .clk        (clk),
         .reset      (reset),
         .load       (load),
+        .enable     (enable),
         .parallel_in(parallel_in),
         .serial_out (serial_out),
         .valid      (valid)
@@ -38,6 +40,7 @@ module piso_tb;
         clk         = 1'b0;
         reset       = 1'b1;
         load        = 1'b0;
+        enable      = 1'b0;
         parallel_in = 8'b0;
 
         // Reset
@@ -60,6 +63,7 @@ module piso_tb;
         #1;
 
         load = 1'b0;
+        enable = 1'b1;
 
         // Check 8 transmitted bits
         for (i = 0; i < 8; i = i + 1) begin
@@ -90,6 +94,8 @@ module piso_tb;
             $display("PASS: First 8-bit transmission");
         end
 
+        enable = 1'b0;
+
         @(posedge clk);
         #1;
 
@@ -112,6 +118,7 @@ module piso_tb;
         #1;
 
         load = 1'b0;
+        enable = 1'b1;
 
         for (i = 0; i < 8; i = i + 1) begin
 
@@ -136,6 +143,7 @@ module piso_tb;
             $display("ERROR: valid was not asserted for second transmission");
             errors = errors + 1;
         end
+
         else begin
             $display("PASS: Second 8-bit transmission");
         end
@@ -143,6 +151,8 @@ module piso_tb;
         // ------------------------------------------------
         // Final result
         // ------------------------------------------------
+
+        enable = 1'b0;
 
         @(posedge clk);
         #1;
@@ -152,6 +162,7 @@ module piso_tb;
             $display("PISO TEST PASSED");
             $display("--------------------------------");
         end
+
         else begin
             $display("--------------------------------");
             $display("PISO TEST FAILED: %0d errors", errors);
