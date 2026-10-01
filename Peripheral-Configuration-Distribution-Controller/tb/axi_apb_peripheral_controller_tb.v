@@ -25,13 +25,13 @@ module axi_apb_peripheral_controller_tb;
     wire [31:0] rdata;
     wire [1:0]  rresp;
     wire        rvalid;
-    reg        rready;
+    reg         rready;
 
-    reg        miso;
+    reg         miso;
 
-    wire       mosi;
-    wire       sclk;
-    wire       cs;
+    wire        mosi;
+    wire        sclk;
+    wire        cs;
 
     reg [7:0] slave_tx_data;
     reg [7:0] slave_rx_data;
@@ -40,66 +40,71 @@ module axi_apb_peripheral_controller_tb;
     integer errors;
 
     axi_apb_peripheral_controller dut (
-        .aclk    (aclk),
-        .aresetn (aresetn),
+        .aclk     (aclk),
+        .aresetn  (aresetn),
 
-        .awaddr  (awaddr),
-        .awvalid (awvalid),
-        .awready (awready),
+        .awaddr   (awaddr),
+        .awvalid  (awvalid),
+        .awready  (awready),
 
-        .wdata   (wdata),
-        .wstrb   (wstrb),
-        .wvalid  (wvalid),
-        .wready  (wready),
+        .wdata    (wdata),
+        .wstrb    (wstrb),
+        .wvalid   (wvalid),
+        .wready   (wready),
 
-        .bresp   (bresp),
-        .bvalid  (bvalid),
-        .bready  (bready),
+        .bresp    (bresp),
+        .bvalid   (bvalid),
+        .bready   (bready),
 
-        .araddr  (araddr),
-        .arvalid (arvalid),
-        .arready (arready),
+        .araddr   (araddr),
+        .arvalid  (arvalid),
+        .arready  (arready),
 
-        .rdata   (rdata),
-        .rresp   (rresp),
-        .rvalid  (rvalid),
-        .rready  (rready),
+        .rdata    (rdata),
+        .rresp    (rresp),
+        .rvalid   (rvalid),
+        .rready   (rready),
 
-        .miso    (miso),
+        .miso     (miso),
 
-        .mosi    (mosi),
-        .sclk    (sclk),
-        .cs      (cs)
+        .mosi     (mosi),
+        .sclk     (sclk),
+        .cs       (cs)
     );
 
+    // AXI clock
     always #5 aclk = ~aclk;
+
+    // ------------------------------------------------------------
+    // SPI slave model
+    // LSB first
+    // ------------------------------------------------------------
 
     always @(negedge sclk) begin
         if (!cs)
-            miso <= slave_tx_data[7-bit_count];
+            miso <= slave_tx_data[bit_count];
     end
 
     always @(posedge sclk) begin
-
         if (!cs) begin
-
             slave_rx_data[7-bit_count] = mosi;
 
             if (bit_count < 7)
                 bit_count = bit_count + 1;
             else
                 bit_count = 0;
-
         end
-
     end
 
+    // ------------------------------------------------------------
+    // AXI write task
+    // ------------------------------------------------------------
+
     task axi_write;
-        input [7:0] addr;
+        input [7:0]  addr;
         input [31:0] data;
 
         begin
-
             @(posedge aclk);
 
             awaddr  <= addr;
@@ -131,15 +136,17 @@ module axi_apb_peripheral_controller_tb;
             @(posedge aclk);
 
             bready <= 1'b0;
-
         end
     endtask
+
+    // ------------------------------------------------------------
+    // AXI read task
+    // ------------------------------------------------------------
 
     task axi_read;
         input [7:0] addr;
 
         begin
-
             @(posedge aclk);
 
             araddr  <= addr;
@@ -166,9 +173,12 @@ module axi_apb_peripheral_controller_tb;
             @(posedge aclk);
 
             rready <= 1'b0;
-
         end
     endtask
+
+    // ------------------------------------------------------------
+    // Test
+    // ------------------------------------------------------------
 
     initial begin
 
@@ -192,13 +202,16 @@ module axi_apb_peripheral_controller_tb;
 
         rready  = 1'b0;
 
-        miso = 1'b0;
-
         slave_tx_data = 8'h65;
         slave_rx_data = 8'b0;
 
         bit_count = 0;
-        errors = 0;
+        errors    = 0;
+
+        // IMPORTANT:
+        // First MISO bit must already be available before
+        // the first SPI rising edge.
+        miso = slave_tx_data[0];
 
         #20;
 
@@ -230,7 +243,9 @@ module axi_apb_peripheral_controller_tb;
 
         end
         else begin
+
             $display("PASS: TX register read through AXI");
+
         end
 
         // -----------------------------------------------
@@ -261,7 +276,9 @@ module axi_apb_peripheral_controller_tb;
 
         end
         else begin
+
             $display("PASS: SPI TX through AXI -> APB");
+
         end
 
         // -----------------------------------------------
@@ -282,11 +299,13 @@ module axi_apb_peripheral_controller_tb;
 
         end
         else begin
+
             $display("PASS: SPI RX through AXI -> APB");
+
         end
 
         // -----------------------------------------------
-        // Final
+        // Final result
         // -----------------------------------------------
 
         if (errors == 0) begin
