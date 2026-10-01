@@ -2,8 +2,8 @@
 
 module apb_peripheral_controller_tb;
 
-    reg        pclk;
-    reg        presetn;
+    reg pclk;
+    reg presetn;
 
     reg [7:0]  paddr;
     reg        psel;
@@ -16,11 +16,9 @@ module apb_peripheral_controller_tb;
     wire        pslverr;
 
     reg         miso;
-
     wire        mosi;
     wire        sclk;
     wire        cs;
-
     wire        busy;
     wire        done;
 
@@ -30,186 +28,291 @@ module apb_peripheral_controller_tb;
     integer bit_count;
     integer errors;
 
+    reg [31:0] read_data;
+
+    // ============================================================
+    // DUT
+    // ============================================================
+
     apb_peripheral_controller dut (
-        .pclk    (pclk),
-        .presetn (presetn),
-
-        .paddr   (paddr),
-        .psel    (psel),
-        .penable (penable),
-        .pwrite  (pwrite),
-        .pwdata  (pwdata),
-
-        .prdata  (prdata),
-        .pready  (pready),
-        .pslverr (pslverr),
-
-        .miso    (miso),
-
-        .mosi    (mosi),
-        .sclk    (sclk),
-        .cs      (cs),
-
-        .busy    (busy),
-        .done    (done)
+        .pclk(pclk),
+        .presetn(presetn),
+        .paddr(paddr),
+        .psel(psel),
+        .penable(penable),
+        .pwrite(pwrite),
+        .pwdata(pwdata),
+        .prdata(prdata),
+        .pready(pready),
+        .pslverr(pslverr),
+        .miso(miso),
+        .mosi(mosi),
+        .sclk(sclk),
+        .cs(cs),
+        .busy(busy),
+        .done(done)
     );
+
+    // ============================================================
+    // CLOCK
+    // ============================================================
 
     always #5 pclk = ~pclk;
 
+    // ============================================================
+    // SPI SLAVE MODEL
+    // LSB FIRST
+    //
+    // MISO is changed on falling edge.
+    // MOSI is sampled slightly after rising edge to avoid
+    // simulator race conditions.
+    // ============================================================
+
     always @(negedge sclk) begin
-        if (!cs)
-            miso <= slave_tx_data[7-bit_count];
+        if (!cs) begin
+            #1;
+            miso <= slave_tx_data[bit_count];
+        end
     end
 
     always @(posedge sclk) begin
         if (!cs) begin
+            #1;
 
-            slave_rx_data[7-bit_count] = mosi;
+            slave_rx_data[bit_count] = mosi;
 
             if (bit_count < 7)
                 bit_count = bit_count + 1;
             else
                 bit_count = 0;
-
         end
     end
 
-    task apb_write_task;
-        input [7:0] addr;
+    // ============================================================
+    // APB WRITE
+    // ============================================================
+
+    task apb_write;
+        input [7:0]  addr;
         input [31:0] data;
 
         begin
-
+            // SETUP
             @(posedge pclk);
+
             paddr   <= addr;
             pwdata  <= data;
             pwrite  <= 1'b1;
             psel    <= 1'b1;
             penable <= 1'b0;
 
+            // ACCESS
             @(posedge pclk);
+
             penable <= 1'b1;
 
+            // COMPLETE
             @(posedge pclk);
+
             psel    <= 1'b0;
             penable <= 1'b0;
             pwrite  <= 1'b0;
-
+            paddr   <= 8'b0;
+            pwdata  <= 32'b0;
         end
     endtask
 
-    task apb_read_task;
-        input [7:0] addr;
+    // ============================================================
+    // APB READ
+    // ============================================================
+
+    task apb_read;
+        input  [7:0] addr;
+        output [31:0] data;
 
         begin
-
+            // SETUP
             @(posedge pclk);
+
             paddr   <= addr;
             pwrite  <= 1'b0;
             psel    <= 1'b1;
             penable <= 1'b0;
 
+            // ACCESS
             @(posedge pclk);
+
             penable <= 1'b1;
 
+            #1;
+            data = prdata;
+
+            // COMPLETE
             @(posedge pclk);
+
             psel    <= 1'b0;
             penable <= 1'b0;
-
+            paddr   <= 8'b0;
         end
     endtask
+
+    // ============================================================
+    // TEST
+    // ============================================================
 
     initial begin
 
         $dumpfile("sim/waves/apb_peripheral_controller.vcd");
         $dumpvars(0, apb_peripheral_controller_tb);
 
-        pclk    = 1'b0;
-        presetn = 1'b0;
+        // --------------------------------------------------------
+        // INITIALIZE
+        // --------------------------------------------------------
 
-        paddr   = 8'b0;
-        psel    = 1'b0;
-        penable = 1'b0;
-        pwrite  = 1'b0;
-        pwdata  = 32'b0;
+        pclk          = 1'b0;
+        presetn       = 1'b0;
 
-        miso = 1'b0;
+        paddr         = 8'b0;
+        psel          = 1'b0;
+        penable       = 1'b0;
+        pwrite        = 1'b0;
+        pwdata        = 32'b0;
 
-        slave_tx_data = 8'b01100101;
-        slave_rx_data = 8'b0;
+        slave_tx_data = 8'h65;
+        slave_rx_data = 8'h00;
 
-        bit_count = 0;
-        errors = 0;
+        bit_count     = 0;
+        errors        = 0;
+
+        // First MISO bit must already be present.
+        miso = slave_tx_data[0];
+
+        // --------------------------------------------------------
+        // RESET
+        // --------------------------------------------------------
 
         #20;
+
         presetn = 1'b1;
-
-        if (pready !== 1'b1) begin
-            $display("ERROR: PREADY");
-            errors = errors + 1;
-        end
-        else
-            $display("PASS: PREADY");
-
-        if (pslverr !== 1'b0) begin
-            $display("ERROR: PSLVERR");
-            errors = errors + 1;
-        end
-        else
-            $display("PASS: PSLVERR");
-
-        // Write TX data
-        apb_write_task(8'h00, 32'h000000A5);
-
-        // Read TX data
-        apb_read_task(8'h00);
-        #1;
-
-        if (prdata !== 32'h000000A5) begin
-            $display("ERROR: TX register readback");
-            errors = errors + 1;
-        end
-        else
-            $display("PASS: TX register readback");
-
-        // Start SPI
-        apb_write_task(8'h04, 32'h00000001);
-
-        // Wait for controller to become busy
-        wait(busy == 1'b1);
-
-        $display("PASS: SPI transaction started through APB");
-
-        // Wait for transaction completion
-        wait(done == 1'b1);
 
         #10;
 
-        if (slave_rx_data !== 8'hA5) begin
+        // --------------------------------------------------------
+        // PREADY
+        // --------------------------------------------------------
+
+        if (pready === 1'b1)
+            $display("PASS: PREADY");
+        else begin
+            $display("ERROR: PREADY");
+            errors = errors + 1;
+        end
+
+        // --------------------------------------------------------
+        // PSLVERR
+        // --------------------------------------------------------
+
+        if (pslverr === 1'b0)
+            $display("PASS: PSLVERR");
+        else begin
+            $display("ERROR: PSLVERR");
+            errors = errors + 1;
+        end
+
+        // --------------------------------------------------------
+        // WRITE TX REGISTER
+        // Address = 0x00
+        // Data = A5
+        // --------------------------------------------------------
+
+        apb_write(8'h00, 32'h000000A5);
+
+        // --------------------------------------------------------
+        // READ TX REGISTER
+        // --------------------------------------------------------
+
+        apb_read(8'h00, read_data);
+
+        if (read_data === 32'h000000A5)
+            $display("PASS: TX register readback");
+        else begin
             $display(
-                "ERROR: SPI TX | Expected=%h | Got=%h",
-                8'hA5,
+                "ERROR: TX register readback | Expected=A5 | Got=%h",
+                read_data
+            );
+            errors = errors + 1;
+        end
+
+        // --------------------------------------------------------
+        // RESET SPI SLAVE STATE
+        // --------------------------------------------------------
+
+        slave_rx_data = 8'h00;
+        bit_count     = 0;
+
+        // First received MISO bit
+        miso = slave_tx_data[0];
+
+        // --------------------------------------------------------
+        // START SPI
+        // Address = 0x04
+        // --------------------------------------------------------
+
+        apb_write(8'h04, 32'h00000001);
+
+        // Allow start pulse to propagate
+        @(posedge pclk);
+        #1;
+
+        if (busy === 1'b1)
+            $display("PASS: SPI transaction started through APB");
+        else begin
+            $display("ERROR: SPI transaction did not start through APB");
+            errors = errors + 1;
+        end
+
+        // --------------------------------------------------------
+        // WAIT FOR SPI COMPLETE
+        // --------------------------------------------------------
+
+        wait(done === 1'b1);
+
+        #2;
+
+        // --------------------------------------------------------
+        // CHECK SPI TX
+        // --------------------------------------------------------
+
+        if (slave_rx_data === 8'hA5)
+            $display("PASS: SPI TX through APB");
+        else begin
+            $display(
+                "ERROR: SPI TX | Expected=A5 | Got=%h",
                 slave_rx_data
             );
             errors = errors + 1;
         end
-        else
-            $display("PASS: SPI TX through APB");
 
-        // Read RX register
-        apb_read_task(8'h08);
-        #1;
+        // --------------------------------------------------------
+        // READ SPI RX REGISTER
+        // Address = 0x08
+        // --------------------------------------------------------
 
-        if (prdata[7:0] !== slave_tx_data) begin
+        apb_read(8'h08, read_data);
+
+        if (read_data[7:0] === 8'h65)
+            $display("PASS: SPI RX through APB");
+        else begin
             $display(
-                "ERROR: SPI RX | Expected=%h | Got=%h",
-                slave_tx_data,
-                prdata[7:0]
+                "ERROR: SPI RX | Expected=65 | Got=%h",
+                read_data[7:0]
             );
             errors = errors + 1;
         end
-        else
-            $display("PASS: SPI RX through APB");
+
+        // --------------------------------------------------------
+        // FINAL RESULT
+        // --------------------------------------------------------
 
         if (errors == 0) begin
             $display("--------------------------------");
@@ -225,6 +328,7 @@ module apb_peripheral_controller_tb;
             $display("--------------------------------");
         end
 
+        #20;
         $finish;
 
     end

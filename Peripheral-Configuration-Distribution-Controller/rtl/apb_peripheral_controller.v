@@ -32,11 +32,17 @@ module apb_peripheral_controller (
     assign pready  = 1'b1;
     assign pslverr = 1'b0;
 
+    // ------------------------------------------------------------
     // APB register map
+    //
     // 0x00 : TX DATA
     // 0x04 : CONTROL
+    //        bit 0 = START
     // 0x08 : RX DATA
     // 0x0C : STATUS
+    //        bit 0 = BUSY
+    //        bit 1 = DONE
+    // ------------------------------------------------------------
 
     assign prdata =
         (paddr[3:2] == 2'b00) ? tx_register :
@@ -45,25 +51,34 @@ module apb_peripheral_controller (
         (paddr[3:2] == 2'b11) ? {30'b0, done, busy} :
                                 32'b0;
 
-    // APB register/control logic
+
+    // ------------------------------------------------------------
+    // APB register logic
+    // ------------------------------------------------------------
+
     always @(posedge pclk) begin
+
         if (!presetn) begin
+
             tx_register <= 32'b0;
             start_pulse <= 1'b0;
+
         end
+
         else begin
-            // Start is a one-cycle pulse
+
+            // Default: no start pulse
             start_pulse <= 1'b0;
 
             if (apb_write) begin
+
                 case (paddr[3:2])
 
-                    // TX register
+                    // TX DATA
                     2'b00:
                         tx_register <= pwdata;
 
-                    // Control register
-                    // Bit 0 = START
+                    // CONTROL
                     2'b01:
                         if (pwdata[0])
                             start_pulse <= 1'b1;
@@ -73,27 +88,33 @@ module apb_peripheral_controller (
                         end
 
                 endcase
+
             end
+
         end
+
     end
 
-    // SPI peripheral controller
-    // This now uses the clock-divider-based implementation.
-    peripheral_controller spi_controller (
-        .clk      (pclk),
-        .reset    (!presetn),
 
-        .start    (start_pulse),
-        .tx_data  (tx_register[7:0]),
-        .miso     (miso),
+    // ------------------------------------------------------------
+    // SPI MASTER TOP
+    // ------------------------------------------------------------
 
-        .mosi     (mosi),
-        .sclk     (sclk),
-        .cs       (cs),
+    spi_master_top spi_master (
+        .clk     (pclk),
+        .reset   (!presetn),
 
-        .rx_data  (rx_data),
-        .busy     (busy),
-        .done     (done)
+        .start   (start_pulse),
+        .tx_data (tx_register[7:0]),
+        .miso    (miso),
+
+        .mosi    (mosi),
+        .sclk    (sclk),
+        .cs      (cs),
+
+        .rx_data (rx_data),
+        .busy    (busy),
+        .done    (done)
     );
 
 endmodule
